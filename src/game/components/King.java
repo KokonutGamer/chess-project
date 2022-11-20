@@ -1,6 +1,6 @@
 package game.components;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class King extends Piece {
 
@@ -9,7 +9,7 @@ public class King extends Piece {
 	}
 
 	@Override
-	public void generateMoves(ArrayList<Piece> board) {
+	public void generateMoves(List<Piece> board) {
 		// TODO Auto-generated method stub
 
 	}
