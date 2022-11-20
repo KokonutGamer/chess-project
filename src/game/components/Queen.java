@@ -1,6 +1,6 @@
 package game.components;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Queen extends SlidingPiece {
 
@@ -9,7 +9,7 @@ public class Queen extends SlidingPiece {
 	}
 
 	@Override
-	public void generateMoves(ArrayList<Piece> board) {
+	public void generateMoves(List<Piece> board) {
 		startDirIndex = 0;
 		endDirIndex = 8;
 		super.generateMoves(board);

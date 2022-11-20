@@ -1,8 +1,11 @@
 package game.components;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import game.Move;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.ImageView;
 
 public abstract class Piece extends ImageView {
@@ -12,12 +15,14 @@ public abstract class Piece extends ImageView {
 	protected ImageView image;
 
 	// Board game components
-	protected int position;
+	protected IntegerProperty position;
+//	protected int position;
 	protected String color;
 	protected ArrayList<Move> moves;
 
 	{
 		moves = new ArrayList<Move>();
+		position = new SimpleIntegerProperty();
 	}
 
 	public Piece() {
@@ -33,13 +38,15 @@ public abstract class Piece extends ImageView {
 			throw new IllegalArgumentException();
 		}
 		this.name = name;
+		this.setFitHeight(100);
+		this.setFitWidth(100);
 	}
 
 	public Move moveTo(int targetSquare) {
-		if (moves.contains(new Move(position, targetSquare))) {
-			int oldPos = position;
-			position = targetSquare;
-			return new Move(oldPos, position);
+		if (moves.contains(new Move(position.getValue(), targetSquare))) {
+			int oldPos = position.getValue();
+			position.setValue(targetSquare);;
+			return new Move(oldPos, position.getValue());
 		}
 		throw new IllegalArgumentException();
 	}
@@ -49,6 +56,10 @@ public abstract class Piece extends ImageView {
 	}
 
 	public int getPosition() {
+		return position.getValue();
+	}
+	
+	public IntegerProperty getPositionProperty() {
 		return position;
 	}
 
@@ -57,17 +68,35 @@ public abstract class Piece extends ImageView {
 	}
 
 	public void setPosition(int index) {
-		position = index;
+		position.setValue(index);;
 	}
 
 	public ArrayList<Move> getMoves() {
 		return moves;
 	}
 
+	public Generic onSquare(int targetSquare) {
+		Generic toReturn = new Generic(targetSquare);
+		return toReturn;
+	}
+
+	public boolean isOccupied(List<Piece> board, int targetSquare) {
+		return board.contains(onSquare(targetSquare));
+	}
+
+	public boolean isCapture(List<Piece> board, int targetSquare) {
+		boolean isCapture = true;
+		if (board.contains(onSquare(targetSquare))) {
+			Piece other = board.get(board.indexOf(onSquare(targetSquare)));
+			isCapture = !other.getColor().equals(color);
+		}
+		return isCapture;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Piece) {
-			return this.position == ((Piece) obj).getPosition();
+			return this.position.getValue() == ((Piece) obj).getPosition();
 		}
 		return false;
 	}
@@ -78,34 +107,16 @@ public abstract class Piece extends ImageView {
 		return this.getClass().getSimpleName() + "\t[color=" + color + ", position=" + position + "]";
 	}
 
-	public Generic onSquare(int targetSquare) {
-		Generic toReturn = new Generic(targetSquare);
-		return toReturn;
-	}
-	
-	public boolean isOccupied(ArrayList<Piece> board, int targetSquare) {
-		return board.contains(onSquare(targetSquare));
-	}
-
-	public boolean isCapture(ArrayList<Piece> board, int targetSquare) {
-		boolean isCapture = true;
-		if (board.contains(onSquare(targetSquare))) {
-			Piece other = board.get(board.indexOf(onSquare(targetSquare)));
-			isCapture = !other.getColor().equals(color);
-		}
-		return isCapture;
-	}
-
-	public abstract void generateMoves(ArrayList<Piece> board);
+	public abstract void generateMoves(List<Piece> board);
 
 	class Generic extends Piece {
 
 		public Generic(int position) {
-			this.position = position;
+			this.position.setValue(position);;
 		}
 
 		@Override
-		public void generateMoves(ArrayList<Piece> board) {
+		public void generateMoves(List<Piece> board) {
 		}
 
 	}
