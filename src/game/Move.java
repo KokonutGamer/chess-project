@@ -3,8 +3,8 @@ package game;
 import test.ANSI;
 
 public class Move {
-	private int startSquare;
-	private int targetSquare;
+	protected int startSquare;
+	protected int targetSquare;
 
 	public Move(int startSquare, int targetSquare) {
 		this.startSquare = startSquare;

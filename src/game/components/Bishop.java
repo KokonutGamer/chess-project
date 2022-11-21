@@ -1,7 +1,5 @@
 package game.components;
 
-import java.util.List;
-
 public class Bishop extends SlidingPiece {
 
 	public Bishop(String color) {
@@ -9,10 +7,10 @@ public class Bishop extends SlidingPiece {
 	}
 
 	@Override
-	public void generateMoves(List<Piece> board) {
+	public void generateMoves() {
 		startDirIndex = 4;
 		endDirIndex = 8;
-		super.generateMoves(board);
+		super.generateMoves();
 	}
 
 }

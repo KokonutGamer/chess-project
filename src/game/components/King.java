@@ -1,7 +1,5 @@
 package game.components;
 
-import java.util.List;
-
 public class King extends Piece {
 
 	public King(String color) {
@@ -9,7 +7,7 @@ public class King extends Piece {
 	}
 
 	@Override
-	public void generateMoves(List<Piece> board) {
+	public void generateMoves() {
 		// TODO Auto-generated method stub
 
 	}

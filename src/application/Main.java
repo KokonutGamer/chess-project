@@ -38,7 +38,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			primaryStage.setTitle("Play Chess!");
-			
+
 			// Menus Layout
 			BorderPane menusLayout = new BorderPane();
 
@@ -91,7 +91,7 @@ public class Main extends Application {
 			// PvP Layout
 			BorderPane pvpLayout = new BorderPane();
 			pvpLayout.setLeft(game);
-			
+
 			// PvP
 			pvpScene = new Scene(pvpLayout, SQUARE_SIZE * 8, SQUARE_SIZE * 8);
 

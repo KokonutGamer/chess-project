@@ -25,16 +25,16 @@ public class Board extends GridPane {
 
 	private int numberOfMoves;
 	private boolean isPieceSelected;
-	private StringProperty colorToMove = new SimpleStringProperty();
 	private Piece selectedPiece;
-	private ArrayList<Piece> pieces;
-	private ArrayList<Piece> capturedPieces;
-	private ArrayList<BoardSquare> squares;
+	private StringProperty colorToMove = new SimpleStringProperty();
+	private ArrayList<Piece> pieces = new ArrayList<Piece>();
+	private ArrayList<BoardSquare> squares = new ArrayList<BoardSquare>();
 
 	public Board() {
+		this("/files/PieceStartingPositions.csv");
+	}
 
-		pieces = new ArrayList<Piece>();
-		squares = new ArrayList<BoardSquare>();
+	public Board(String positionPath) {
 
 		numberOfMoves = 0;
 		colorToMove.setValue(colors[0]);
@@ -60,14 +60,10 @@ public class Board extends GridPane {
 		}
 
 		// Load inital starting position
-		loadPosition("/files/PieceStartingPositions.csv");
+		loadPosition(positionPath);
 
 		// Display all pieces and squares on the scene
 		setGameScene();
-	}
-
-	public Board(String positionPath) {
-		loadPosition(positionPath);
 	}
 
 	// Load position parses the given file specified by the file path and generates
@@ -114,37 +110,62 @@ public class Board extends GridPane {
 
 		// Add each instance of Piece in pieces onto this GridPane
 		pieces.forEach(piece -> {
-						
+
+			piece.setBoard(this);
+
 			int index = piece.getPosition();
 
 			// Bind the mouseTransparent property to whether its color is equal to the
 			// current color
 			piece.mouseTransparentProperty().bind(Bindings.notEqual(colorToMove, piece.getColor()));
+
 			piece.setCursor(Cursor.HAND);
+
+			// When a MouseEvent of type MOUSE_RELEASED hits this piece, call generateMoves
 			piece.setOnMouseReleased(release -> {
 				selectedPiece = piece;
 				isPieceSelected = true;
-				piece.generateMoves(pieces);
+				piece.generateMoves();
 			});
+
+			// Whenever a piece is moved, update its position on the board
 			piece.getPositionProperty().addListener((property, oldVal, newVal) -> {
 				this.getChildren().remove(piece);
 				int target = newVal.intValue();
-				
 				add(piece, target % 8, (63 - target) / 8);
-				selectedPiece = null;
-				numberOfMoves++;
-				colorToMove.setValue(colors[numberOfMoves % 2]);
+				updateBoardState();
 			});
-			
+
 			add(piece, index % 8, (63 - index) / 8);
-			
+
 		});
-		
+
 	}
 
 	public void removePiece(Piece piece) {
 		pieces.remove(piece);
 		this.getChildren().remove(piece);
+	}
+
+	public ArrayList<Piece> getPieces() {
+		return pieces;
+	}
+
+	public Piece getPieceOn(int targetSquare) {
+		for (Piece piece : pieces) {
+			if (piece.getPosition() == targetSquare) {
+				return piece;
+			}
+		}
+		return null;
+	}
+
+	public void updateBoardState() {
+		isPieceSelected = false;
+		selectedPiece = null;
+		numberOfMoves++;
+		colorToMove.setValue(colors[numberOfMoves % 2]);
+
 	}
 
 	class BoardSquare extends Rectangle {
@@ -165,7 +186,7 @@ public class Board extends GridPane {
 					if (selectedPiece.getMoves().contains(move)) {
 						System.out.println("Selected " + ANSI.YELLOW_BOLD + selectedPiece.getClass().getSimpleName()
 								+ ANSI.RESET + " has moved!");
-						selectedPiece.moveTo(index);
+						selectedPiece.choose(move);
 					}
 					squares.forEach(square -> {
 						square.highlight(false);
