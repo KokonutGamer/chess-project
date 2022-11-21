@@ -1,8 +1,8 @@
 package game.components;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import game.Capture;
 import game.Move;
 import game.MoveData;
 import test.ANSI;
@@ -21,18 +21,27 @@ public abstract class SlidingPiece extends Piece {
 	}
 
 	@Override
-	public void generateMoves(List<Piece> board) {
+	public void generateMoves() {
 		moves = new ArrayList<Move>();
 		System.out.println("Generating moves for: " + ANSI.YELLOW_BOLD + this.getClass().getSimpleName() + ANSI.RESET);
 		for (int directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++) {
 			for (int n = 0; n < MoveData.numSquaresToEdge[position.getValue()][directionIndex]; n++) {
 				int targetSquare = position.getValue() + MoveData.directionOffsets[directionIndex] * (n + 1);
 				System.out.println("Target square index: " + ANSI.BLUE_BACKGROUND + targetSquare + ANSI.RESET);
-				if (!isCapture(board, targetSquare)) {
+				if (!this.canMoveTo(targetSquare)) {
 					System.out.println(ANSI.RED + "Breaking..." + ANSI.RESET);
 					break;
 				}
-				moves.add(new Move(position.getValue(), targetSquare));
+
+				Move nextMove;
+
+				if (this.canCaptureOn(targetSquare)) {
+					nextMove = new Capture(position.getValue(), targetSquare, board.getPieceOn(targetSquare));
+				} else {
+					nextMove = new Move(position.getValue(), targetSquare);
+				}
+
+				moves.add(nextMove);
 			}
 		}
 		System.out.println(ANSI.GREEN_UNDERLINED + "Finished generating moves!" + ANSI.RESET);

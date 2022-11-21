@@ -1,7 +1,5 @@
 package game.components;
 
-import java.util.List;
-
 public class Rook extends SlidingPiece {
 
 	public Rook(String color) {
@@ -9,10 +7,10 @@ public class Rook extends SlidingPiece {
 	}
 
 	@Override
-	public void generateMoves(List<Piece> board) {
+	public void generateMoves() {
 		startDirIndex = 0;
 		endDirIndex = 4;
-		super.generateMoves(board);
+		super.generateMoves();
 	}
 
 }

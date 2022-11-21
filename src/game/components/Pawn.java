@@ -1,8 +1,8 @@
 package game.components;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import game.Capture;
 import game.Move;
 import game.MoveData;
 import test.ANSI;
@@ -13,36 +13,54 @@ public class Pawn extends Piece {
 		super(color + "Pawn");
 	}
 
+	public boolean pieceOn(int targetSquare) {
+		boolean hasPiece = false;
+		for (Piece piece : board.getPieces()) {
+			if (piece.getPosition() == targetSquare) {
+				hasPiece = true;
+			}
+		}
+		return hasPiece;
+	}
+
 	@Override
-	public void generateMoves(List<Piece> board) {
+	public void generateMoves() {
 		moves = new ArrayList<Move>();
 		System.out.println("Generating moves for: " + ANSI.YELLOW_BOLD + this.getClass().getSimpleName() + ANSI.RESET);
+
+		// Sets the direction and checks if the initial targetSquare is on the board
 		int direction = color.equals("White") ? 0 : 1;
 		int targetSquare = position.getValue() + MoveData.directionOffsets[direction];
 		if (targetSquare > 63 || targetSquare < 0)
 			return;
 
-		if (!isOccupied(board, targetSquare)) {
+		// If no piece on targetSquare, add the move to the moves ArrayList
+		if (!pieceOn(targetSquare)) {
 			moves.add(new Move(position.getValue(), targetSquare));
 		}
 
+		// Check if the pawn is at spawn. If it is, check if it can move two squares.
 		if ((position.getValue() / 8 == 1 && direction == 0) || (position.getValue() / 8 == 6 && direction == 1)) {
-			if (!isOccupied(board, targetSquare)) {
+			if (!pieceOn(targetSquare)) {
 				targetSquare += MoveData.directionOffsets[direction];
-				if (!isOccupied(board, targetSquare)) {
+				if (!pieceOn(targetSquare)) {
 					moves.add(new Move(position.getValue(), targetSquare));
 				}
 			}
 		}
 
+		// Check if the pawn can capture diagonally
 		int file = position.getValue() % 8;
 		for (int i = 4 + direction; i <= 6 + direction; i += 2) {
 			int pawnCaptureSquare = position.getValue() + MoveData.directionOffsets[i];
-			if (pawnCaptureSquare < 64 && board.contains(this.onSquare(pawnCaptureSquare))) {
-				Piece pieceToCapture = board.get(board.indexOf(this.onSquare(pawnCaptureSquare)));
+
+			if (pawnCaptureSquare < 64 && this.canCaptureOn(pawnCaptureSquare)) {
+
+				// Checks if the file is adjacent to the pawn
 				int pawnSquareFile = pawnCaptureSquare % 8;
-				if (Math.abs(file - pawnSquareFile) == 1 && !pieceToCapture.getColor().equals(color)) {
-					moves.add(new Move(position.getValue(), pawnCaptureSquare));
+				if (Math.abs(file - pawnSquareFile) == 1) {
+					moves.add(new Capture(position.getValue(), pawnCaptureSquare,
+							this.board.getPieceOn(pawnCaptureSquare)));
 				}
 			}
 		}

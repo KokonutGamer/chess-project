@@ -1,8 +1,8 @@
 package game.components;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import game.Capture;
 import game.Move;
 import game.MoveData;
 import test.ANSI;
@@ -14,13 +14,24 @@ public class Knight extends Piece {
 	}
 
 	@Override
-	public void generateMoves(List<Piece> board) {
+	public void generateMoves() {
 		moves = new ArrayList<Move>();
 		System.out.println("Generating moves for: " + ANSI.YELLOW_BOLD + this.getClass().getSimpleName() + ANSI.RESET);
-		for (int knightMoveIndex = 0; knightMoveIndex < MoveData.knightMoves[position.getValue()].length; knightMoveIndex++) {
+
+		// Generate moves based on knightMoveIndex under MoveData.java
+		for (int knightMoveIndex = 0; knightMoveIndex < MoveData.knightMoves[position
+				.getValue()].length; knightMoveIndex++) {
 			int targetSquare = MoveData.knightMoves[position.getValue()][knightMoveIndex];
-			if (isCapture(board, targetSquare)) {
-				moves.add(new Move(position.getValue(), targetSquare));
+			if (this.canMoveTo(targetSquare)) {
+				Move nextMove;
+
+				if (this.canCaptureOn(targetSquare)) {
+					nextMove = new Capture(position.getValue(), targetSquare, board.getPieceOn(targetSquare));
+				} else {
+					nextMove = new Move(position.getValue(), targetSquare);
+				}
+
+				moves.add(nextMove);
 			}
 		}
 		System.out.println(ANSI.GREEN_UNDERLINED + "Finished generating moves!" + ANSI.RESET);
