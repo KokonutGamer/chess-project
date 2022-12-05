@@ -12,10 +12,6 @@ public abstract class SlidingPiece extends Piece {
 	protected int startDirIndex;
 	protected int endDirIndex;
 
-	public SlidingPiece() {
-		super();
-	}
-
 	public SlidingPiece(String name) {
 		super(name);
 	}
@@ -36,7 +32,7 @@ public abstract class SlidingPiece extends Piece {
 				Move nextMove;
 
 				if (this.canCaptureOn(targetSquare)) {
-					nextMove = new Capture(position.getValue(), targetSquare, board.getPieceOn(targetSquare));
+					nextMove = new Capture(position.getValue(), targetSquare, getPieceOn(targetSquare));
 				} else {
 					nextMove = new Move(position.getValue(), targetSquare);
 				}
