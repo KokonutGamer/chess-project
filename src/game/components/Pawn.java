@@ -13,16 +13,6 @@ public class Pawn extends Piece {
 		super(color + "Pawn");
 	}
 
-	public boolean pieceOn(int targetSquare) {
-		boolean hasPiece = false;
-		for (Piece piece : board.getPieces()) {
-			if (piece.getPosition() == targetSquare) {
-				hasPiece = true;
-			}
-		}
-		return hasPiece;
-	}
-
 	@Override
 	public void generateMoves() {
 		moves = new ArrayList<Move>();
@@ -35,15 +25,15 @@ public class Pawn extends Piece {
 			return;
 
 		// If no piece on targetSquare, add the move to the moves ArrayList
-		if (!pieceOn(targetSquare)) {
+		if (getPieceOn(targetSquare) == null) {
 			moves.add(new Move(position.getValue(), targetSquare));
 		}
 
 		// Check if the pawn is at spawn. If it is, check if it can move two squares.
 		if ((position.getValue() / 8 == 1 && direction == 0) || (position.getValue() / 8 == 6 && direction == 1)) {
-			if (!pieceOn(targetSquare)) {
+			if (getPieceOn(targetSquare) == null) {
 				targetSquare += MoveData.directionOffsets[direction];
-				if (!pieceOn(targetSquare)) {
+				if (getPieceOn(targetSquare) == null) {
 					moves.add(new Move(position.getValue(), targetSquare));
 				}
 			}
@@ -60,7 +50,7 @@ public class Pawn extends Piece {
 				int pawnSquareFile = pawnCaptureSquare % 8;
 				if (Math.abs(file - pawnSquareFile) == 1) {
 					moves.add(new Capture(position.getValue(), pawnCaptureSquare,
-							this.board.getPieceOn(pawnCaptureSquare)));
+							this.getPieceOn(pawnCaptureSquare)));
 				}
 			}
 		}

@@ -17,18 +17,27 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import test.ANSI;
+import util.ObservableStack;
 
 public class Board extends GridPane {
 
+	// Constants
 	private final int SQUARE_SIZE = 100;
 	private final String[] colors = { "White", "Black" };
 
+	// Primatives
 	private int numberOfMoves;
 	private boolean isPieceSelected;
+//	private boolean isKingInCheck;
+	
+	// Objects
 	private Piece selectedPiece;
 	private StringProperty colorToMove = new SimpleStringProperty();
+	
+	// Data Structures
 	private ArrayList<Piece> pieces = new ArrayList<Piece>();
 	private ArrayList<BoardSquare> squares = new ArrayList<BoardSquare>();
+	private ObservableStack<Move> moveList = new ObservableStack<Move>();
 
 	public Board() {
 		this("/files/PieceStartingPositions.csv");
@@ -123,9 +132,18 @@ public class Board extends GridPane {
 
 			// When a MouseEvent of type MOUSE_RELEASED hits this piece, call generateMoves
 			piece.setOnMouseReleased(release -> {
+				squares.forEach(square -> square.highlight(false));
 				selectedPiece = piece;
 				isPieceSelected = true;
 				piece.generateMoves();
+				selectedPiece.getMoves().forEach(move -> {
+					int boardSquareIndex = move.getTargetSquare();
+					for(BoardSquare square : squares) {
+						if(square.getIndex() == boardSquareIndex) {
+							square.highlight(true);
+						}
+					}
+				});
 			});
 
 			// Whenever a piece is moved, update its position on the board
@@ -150,14 +168,9 @@ public class Board extends GridPane {
 	public ArrayList<Piece> getPieces() {
 		return pieces;
 	}
-
-	public Piece getPieceOn(int targetSquare) {
-		for (Piece piece : pieces) {
-			if (piece.getPosition() == targetSquare) {
-				return piece;
-			}
-		}
-		return null;
+	
+	public ObservableStack<Move> getMoveList() {
+		return moveList;
 	}
 
 	public void updateBoardState() {
@@ -165,7 +178,11 @@ public class Board extends GridPane {
 		selectedPiece = null;
 		numberOfMoves++;
 		colorToMove.setValue(colors[numberOfMoves % 2]);
-
+		
+		// Check whether the king is in check
+//		if(true) {
+//			isKingInCheck = true;
+//		}
 	}
 
 	class BoardSquare extends Rectangle {
@@ -186,7 +203,7 @@ public class Board extends GridPane {
 					if (selectedPiece.getMoves().contains(move)) {
 						System.out.println("Selected " + ANSI.YELLOW_BOLD + selectedPiece.getClass().getSimpleName()
 								+ ANSI.RESET + " has moved!");
-						selectedPiece.choose(move);
+						moveList.push(selectedPiece.choose(move));
 					}
 					squares.forEach(square -> {
 						square.highlight(false);
@@ -201,7 +218,8 @@ public class Board extends GridPane {
 		}
 
 		public void highlight(boolean highlighted) {
-			super.setFill(highlighted ? Color.GREEN : color);
+			Color highlight = (index / 8 % 2 == 0) ? Color.LIME : Color.LIMEGREEN;
+			super.setFill(highlighted ? highlight : color);
 		}
 
 		@Override

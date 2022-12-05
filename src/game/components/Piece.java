@@ -21,12 +21,7 @@ public abstract class Piece extends ImageView {
 	protected ArrayList<Move> moves = new ArrayList<Move>();
 	protected IntegerProperty position = new SimpleIntegerProperty();
 
-	public Piece() {
-		this.name = "";
-		this.image = null;
-		this.color = null;
-	}
-
+	// Getters and Setters
 	public Piece(String name) {
 		super("/images/pieces/" + name + ".png");
 		this.color = name.substring(0, 5);
@@ -36,16 +31,6 @@ public abstract class Piece extends ImageView {
 		this.name = name;
 		this.setFitHeight(100);
 		this.setFitWidth(100);
-	}
-
-	public Move moveTo(int targetSquare) {
-		if (moves.contains(new Move(position.getValue(), targetSquare))) {
-			int oldPos = position.getValue();
-			position.setValue(targetSquare);
-			;
-			return new Move(oldPos, position.getValue());
-		}
-		throw new IllegalArgumentException();
 	}
 
 	public String getName() {
@@ -77,6 +62,16 @@ public abstract class Piece extends ImageView {
 		return moves;
 	}
 
+	// Additional Methods
+	public Piece getPieceOn(int targetSquare) {
+		for (Piece piece : board.getPieces()) {
+			if (piece.getPosition() == targetSquare) {
+				return piece;
+			}
+		}
+		return null;
+	}
+	
 	public boolean canMoveTo(int targetSquare) {
 		boolean isMovable = true;
 		for (Piece piece : board.getPieces()) {
@@ -97,7 +92,8 @@ public abstract class Piece extends ImageView {
 		return canCapture;
 	}
 
-	public void choose(Move move) {
+	// Moves the piece according to the move passed and returns the move back
+	public Move choose(Move move) {
 		if (moves.contains(move)) {
 			move = moves.get(moves.indexOf(move));
 			if (move instanceof Capture) {
@@ -105,9 +101,13 @@ public abstract class Piece extends ImageView {
 				board.removePiece(capturedPiece);
 			}
 			position.setValue(move.getTargetSquare());
+			move.setMovingPiece(this);
+			return move;
 		}
+		return null;
 	}
 
+	// Overrides
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Piece) {

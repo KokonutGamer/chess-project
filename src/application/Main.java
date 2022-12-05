@@ -3,18 +3,24 @@ package application;
 import java.util.HashMap;
 
 import game.Board;
+import game.Move;
 import game.MoveData;
 import javafx.application.Application;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class Main extends Application {
+
+	public final int SQUARE_SIZE = 100;
 
 	// private Scene intro; TODO finish core gameplay
 	// private Scene titleScreen; TODO finish core gameplay
@@ -24,15 +30,9 @@ public class Main extends Application {
 
 	private Scene pvpScene;
 	private Scene pvcpuScene;
-	private Board game;
+	private Board board = new Board();
 
 //	private Scene endScreen; // NOTE: this may change into a component instead of a Scene
-
-	public final int SQUARE_SIZE = 100;
-
-	{
-		game = new Board();
-	}
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -62,11 +62,11 @@ public class Main extends Application {
 			Button pvp = new Button("Human vs Human");
 			Button pvcpu = new Button("Human vs Computer");
 			pvp.setOnAction(click -> {
-				game = new Board();
+				board = new Board();
 				primaryStage.setScene(pvpScene);
 			});
 			pvcpu.setOnAction(click -> {
-				game = new Board();
+				board = new Board();
 				primaryStage.setScene(pvcpuScene);
 			});
 			playContent.getChildren().addAll(pvp, pvcpu);
@@ -90,10 +90,23 @@ public class Main extends Application {
 
 			// PvP Layout
 			BorderPane pvpLayout = new BorderPane();
-			pvpLayout.setLeft(game);
+			pvpLayout.setCenter(board);
+			ObservableList<Move> allMoves = board.getMoveList();
+			ListView<Move> moveListView = new ListView<Move>(allMoves);
+			allMoves.addListener(new ListChangeListener<Move>() {
 
+				@Override
+				public void onChanged(Change<? extends Move> arg0) {
+					moveListView.setItems(allMoves);
+				}
+				
+			});
+			moveListView.setMinWidth(SQUARE_SIZE);
+			pvpLayout.setRight(moveListView);
+			pvpLayout.setPrefWidth(SQUARE_SIZE * 8 + moveListView.getWidth());
+			
 			// PvP
-			pvpScene = new Scene(pvpLayout, SQUARE_SIZE * 8, SQUARE_SIZE * 8);
+			pvpScene = new Scene(pvpLayout, SQUARE_SIZE * 8 + moveListView.getWidth(), SQUARE_SIZE * 8);
 
 			primaryStage.setScene(menus);
 			primaryStage.show();
